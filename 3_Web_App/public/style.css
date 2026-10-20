@@ -1,0 +1,29 @@
+  :root{--bg:#f4f6fa;--card:#fff;--ink:#1d2433;--muted:#667085;--line:#e3e8ef;--brand:#2f5496;--ok:#1a8a4a;--warn:#b7791f;--bad:#c0392b}
+  *{box-sizing:border-box} body{margin:0;font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:var(--brand);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  header h1{font-size:18px;margin:0;font-weight:600} nav{display:flex;gap:4px;flex-wrap:wrap}
+  nav button{background:transparent;color:#dbe5ff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:14px}
+  nav button.active,nav button:hover{background:rgba(255,255,255,.18);color:#fff}
+  main{max-width:1150px;margin:20px auto;padding:0 16px}
+  .grid{display:grid;gap:14px} .g4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))} .g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .card h3{margin:0 0 10px;font-size:14px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .stat{font-size:30px;font-weight:700} .sub{color:var(--muted);font-size:12px}
+  table{width:100%;border-collapse:collapse} th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;color:var(--muted);text-transform:uppercase} tr.click{cursor:pointer} tr.click:hover{background:#f0f4ff}
+  .pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;background:#eef1f6}
+  .Critical{background:#fde8e6;color:var(--bad)} .High{background:#fff1dc;color:var(--warn)} .Medium{background:#e6f0ff;color:var(--brand)} .Low{background:#eaf7ef;color:var(--ok)}
+  .s-Open{background:#fff1dc;color:var(--warn)} .s-In-Progress{background:#e6f0ff;color:var(--brand)} .s-Resolved,.s-Closed{background:#eaf7ef;color:var(--ok)}
+  input,select,textarea,button.btn{font:inherit} input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
+  label{display:block;font-size:12px;color:var(--muted);margin:10px 0 3px} textarea{min-height:70px;resize:vertical}
+  button.btn{background:var(--brand);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer} button.btn:hover{opacity:.9}
+  button.btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand)} button.btn.danger{background:var(--bad)} button.btn.ok{background:var(--ok)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center} .row>*{flex:0 0 auto}
+  .bar{height:10px;background:#e8edf5;border-radius:5px;overflow:hidden} .bar>i{display:block;height:100%;background:var(--brand)}
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 12px;z-index:5}
+  .modal.show{display:flex} .modal .card{width:min(820px,100%)} .close{float:right;cursor:pointer;font-size:20px;color:var(--muted)}
+  .msg{padding:8px 12px;border-radius:10px;margin:6px 0;max-width:80%} .msg.customer{background:#eef1f6} .msg.agent{background:#e3edff;margin-left:auto} .msg.system{background:#fff7e0}
+  .msg small{display:block;color:var(--muted);font-size:11px}
+  #toast{position:fixed;bottom:20px;right:20px;background:#1d2433;color:#fff;padding:10px 16px;border-radius:8px;display:none;z-index:9;max-width:360px}
+  #toast.err{background:var(--bad)} svg text{font-size:11px} .hide{display:none}
+  .legend span{margin-right:12px;font-size:12px} .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}

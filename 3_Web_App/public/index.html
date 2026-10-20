@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Customer Support – Neo4j</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Smart Customer Support · Neo4j</h1>
+  <nav id="nav">
+    <button data-tab="dash" class="active">Dashboard</button>
+    <button data-tab="tickets">Tickets</button>
+    <button data-tab="agents">Agents</button>
+    <button data-tab="kb">Knowledge Base</button>
+    <button data-tab="graph">Graph View</button>
+  </nav>
+</header>
+<main>
+  <!-- DASHBOARD -->
+  <section id="tab-dash">
+    <div class="grid g4" id="statCards"></div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card"><h3>Tickets by category</h3><div id="byCategory"></div></div>
+      <div class="card"><h3>Open tickets by priority</h3><div id="byPriority"></div></div>
+      <div class="card"><h3>Department performance</h3><div id="deptTable"></div></div>
+      <div class="card"><h3>Repeat issues (same customer, same category)</h3><div id="repeatTable"></div></div>
+    </div>
+  </section>
+
+  <!-- TICKETS -->
+  <section id="tab-tickets" class="hide">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div class="row">
+          <select id="statusFilter" style="width:170px"><option value="">All statuses</option><option>Open</option><option>In Progress</option><option>Resolved</option><option>Closed</option></select>
+        </div>
+        <button class="btn" id="newTicketBtn">+ New ticket</button>
+      </div>
+      <div id="ticketTable" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <!-- AGENTS -->
+  <section id="tab-agents" class="hide"><div class="card"><h3>Agents &amp; workload</h3><div id="agentTable"></div></div></section>
+
+  <!-- KB -->
+  <section id="tab-kb" class="hide">
+    <div class="card">
+      <div class="row"><input id="kbq" placeholder="Search knowledge base (full-text index), e.g. refund or crash" style="flex:1"><button class="btn" id="kbBtn">Search</button></div>
+      <div id="kbResults" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- GRAPH -->
+  <section id="tab-graph" class="hide">
+    <div class="card">
+      <div class="row"><label style="margin:0">Ticket ID</label><input id="graphId" type="number" value="4" style="width:100px"><button class="btn" id="graphBtn">Show graph</button></div>
+      <div class="legend" id="legend" style="margin-top:8px"></div>
+      <svg id="graphSvg" viewBox="0 0 1000 620" style="width:100%;background:#fafbfe;border-radius:8px;margin-top:8px"></svg>
+    </div>
+  </section>
+</main>
+
+<!-- Ticket detail modal -->
+<div class="modal" id="detailModal"><div class="card" id="detailBody"></div></div>
+<!-- New ticket modal -->
+<div class="modal" id="newModal"><div class="card">
+  <span class="close" onclick="hideModal('newModal')">×</span>
+  <h2 style="margin-top:0">Raise new ticket</h2>
+  <p class="sub">The ticket is automatically assigned to the least-loaded agent in the chosen department.</p>
+  <div class="grid g2">
+    <div><label>Customer</label><select id="nCustomer"></select></div>
+    <div><label>Category</label><select id="nCategory"></select></div>
+    <div><label>Department</label><select id="nDepartment"></select></div>
+    <div><label>Channel</label><select id="nChannel"><option>Email</option><option>Chat</option><option>Phone</option><option>Portal</option><option>Social Media</option></select></div>
+    <div><label>Priority</label><select id="nPriority"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select></div>
+    <div><label>Subject</label><input id="nSubject"></div>
+  </div>
+  <label>Description</label><textarea id="nDesc"></textarea>
+  <div class="row" style="margin-top:12px"><button class="btn" id="createBtn">Create ticket</button></div>
+</div></div>
+<div id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

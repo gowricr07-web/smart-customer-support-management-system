@@ -1,0 +1,15 @@
+{
+  "name": "smart-support-neo4j",
+  "version": "1.0.0",
+  "description": "Smart Customer Support Management System - Express + Neo4j backend with web frontend (DA3)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "neo4j-driver": "^5.24.0"
+  }
+}
