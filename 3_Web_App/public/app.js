@@ -44,7 +44,7 @@ const loadTickets = guard(async () => {
 });
 $("#statusFilter").onchange = loadTickets;
 
-const openTicket = guard(async id => {
+window.openTicket = guard(async id => {
   const [t, agents, recAgents, recArticles] = await Promise.all([
     api("/tickets/" + id), api("/agents"), api(`/tickets/${id}/recommend-agents`), api(`/tickets/${id}/recommend-articles`)]);
   const done = ["Resolved", "Closed"].includes(t.status);
@@ -58,7 +58,7 @@ const openTicket = guard(async id => {
       <div><b>Feedback:</b> ${t.feedback ? "★".repeat(t.feedback.rating) + " – " + esc(t.feedback.comments) : "<span class='sub'>none yet</span>"}</div>
     </div>
     <h3 style="margin:16px 0 4px">Conversation</h3>
-    <div>${t.messages.map(m => `<div class="msg ${esc(m.senderType)}"><small>#${m.seqNo} · ${esc(m.senderType)} · ${fmt(m.createdAt)}</small>${esc(m.content)}${m.attachments.length ? `<small>📎 ${m.attachments.map(esc).join(", ")}</small>` : ""}</div>`).join("") || "<span class='sub'>No messages</span>"}</div>
+    <div>${t.messages.map(m => `<div class="msg ${esc(m.senderType)}"><small>#${m.seqNo} · ${esc(m.senderType)} ·${fmt(m.createdAt)}</small>${esc(m.content)}${m.attachments.length ? `<small>📎 ${m.attachments.map(esc).join(", ")}</small>` : ""}</div>`).join("") || "<span class='sub'>No messages</span>"}</div>
     <div class="row" style="margin-top:8px"><select id="mSender" style="width:120px"><option>customer</option><option selected>agent</option><option>system</option></select><input id="mText" placeholder="Write a message…" style="flex:1"><button class="btn" onclick="sendMsg(${id})">Send</button></div>
     <h3 style="margin:16px 0 4px">AI suggestions on this ticket</h3>
     ${t.suggestions.map(s => `<div class="row" style="justify-content:space-between"><span>${esc(s.title)}</span><b>${Math.round(s.confidence * 100)}%</b></div>`).join("") || "<span class='sub'>None</span>"}
@@ -81,13 +81,41 @@ const openTicket = guard(async id => {
     ${done ? "" : "<div class='sub'>Feedback is only accepted once the ticket is Resolved/Closed.</div>"}`;
   showModal("detailModal");
 });
-const sendMsg = guard(async id => { const v = $("#mText").value.trim(); if (!v) return;
-  await api(`/tickets/${id}/messages`, { method: "POST", body: { senderType: $("#mSender").value, content: v } }); toast("Message added"); openTicket(id); });
-const setStatus = guard(async id => { await api(`/tickets/${id}/status`, { method: "PATCH", body: { status: $("#stSel").value } }); toast("Status updated"); openTicket(id); loadTickets(); });
-const reassign = guard(async id => { await api(`/tickets/${id}/agent`, { method: "PATCH", body: { agentId: $("#agSel").value } }); toast("Agent reassigned"); openTicket(id); loadTickets(); });
-const sendFb = guard(async id => { await api(`/tickets/${id}/feedback`, { method: "POST", body: { rating: $("#fbRating").value, comments: $("#fbText").value } }); toast("Feedback saved"); openTicket(id); });
-const delTicket = guard(async id => { if (!confirm("Delete ticket #" + id + " with its messages and feedback?")) return;
-  await api("/tickets/" + id, { method: "DELETE" }); hideModal("detailModal"); toast("Ticket deleted"); loadTickets(); });
+
+window.sendMsg = guard(async id => { 
+  const v = $("#mText").value.trim(); if (!v) return;
+  await api(`/tickets/${id}/messages`, { method: "POST", body: { senderType: $("#mSender").value, content: v } }); 
+  toast("Message added"); 
+  window.openTicket(id); 
+});
+
+window.setStatus = guard(async id => { 
+  await api(`/tickets/${id}/status`, { method: "PATCH", body: { status: $("#stSel").value } }); 
+  toast("Status updated"); 
+  window.openTicket(id); 
+  loadTickets(); 
+});
+
+window.reassign = guard(async id => { 
+  await api(`/tickets/${id}/agent`, { method: "PATCH", body: { agentId: $("#agSel").value } }); 
+  toast("Agent reassigned"); 
+  window.openTicket(id); 
+  loadTickets(); 
+});
+
+window.sendFb = guard(async id => { 
+  await api(`/tickets/${id}/feedback`, { method: "POST", body: { rating: $("#fbRating").value, comments: $("#fbText").value } }); 
+  toast("Feedback saved"); 
+  window.openTicket(id); 
+});
+
+window.delTicket = guard(async id => { 
+  if (!confirm("Delete ticket #" + id + " with its messages and feedback?")) return;
+  await api("/tickets/" + id, { method: "DELETE" }); 
+  hideModal("detailModal"); 
+  toast("Ticket deleted"); 
+  loadTickets(); 
+});
 
 // ---------- new ticket ----------
 $("#newTicketBtn").onclick = guard(async () => {
@@ -97,6 +125,7 @@ $("#newTicketBtn").onclick = guard(async () => {
   $("#nDepartment").innerHTML = de.map(d => `<option>${esc(d.name)}</option>`).join("");
   showModal("newModal");
 });
+
 $("#createBtn").onclick = guard(async () => {
   const r = await api("/tickets", { method: "POST", body: { customerId: $("#nCustomer").value, category: $("#nCategory").value,
     department: $("#nDepartment").value, subject: $("#nSubject").value, description: $("#nDesc").value,
@@ -120,8 +149,11 @@ const searchKb = guard(async () => {
 $("#kbBtn").onclick = searchKb; $("#kbq").onkeydown = e => { if (e.key === "Enter") searchKb(); };
 
 // ---------- graph visualisation (dependency-free SVG, radial layout) ----------
-const COLORS = { Ticket: "#2f5496", Customer: "#1a8a4a", Agent: "#b7791f", Category: "#8e44ad", Message: "#667085", Attachment: "#999",
-  Article: "#c0392b", Feedback: "#e67e22", Phone: "#16a085", Department: "#34495e", Skill: "#2980b9" };
+const COLORS = {
+  Ticket: "#7068a8", Customer: "#7fa58d", Agent: "#c38769", Category: "#a77bbd",
+  Message: "#817d86", Attachment: "#9a9691", Article: "#b95d52", Feedback: "#d49b55",
+  Phone: "#75a7a1", Department: "#625d72", Skill: "#8799b8"
+};
 const drawGraph = guard(async () => {
   const g = await api("/graph/" + $("#graphId").value);
   const svg = $("#graphSvg"); const W = 1000, H = 620, cx = W / 2, cy = H / 2;
@@ -138,10 +170,11 @@ const drawGraph = guard(async () => {
   }
   const lines = g.edges.filter(e => pos.has(e.from) && pos.has(e.to)).map(e => {
     const [x1, y1] = pos.get(e.from), [x2, y2] = pos.get(e.to);
-    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c5cee0"/><text x="${(x1 + x2) / 2}" y="${(y1 + y2) / 2}" fill="#8a94a8" text-anchor="middle" style="font-size:9px">${esc(e.type)}</text>`;
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c9c4c8" stroke-width="1.5" opacity=".82"/><text x="${(x1 + x2) / 2}" y="${(y1 + y2) / 2}" fill="#8d858b" text-anchor="middle" style="font-size:9px;letter-spacing:.02em">${esc(e.type)}</text>`;
   }).join("");
   const dots = g.nodes.filter(n => pos.has(n.id)).map(n => { const [x, y] = pos.get(n.id);
-    return `<circle cx="${x}" cy="${y}" r="${n.id === g.root ? 20 : 14}" fill="${COLORS[n.label] || "#555"}"/><text x="${x}" y="${y + (n.id === g.root ? 34 : 28)}" text-anchor="middle">${esc(n.caption.slice(0, 26))}</text>`; }).join("");
+    const radius = n.id === g.root ? 22 : 15;
+    return `<circle cx="${x}" cy="${y}" r="${radius}" fill="${COLORS[n.label] || "#817d86"}" stroke="#f8f5f1" stroke-width="4" paint-order="stroke"/><text x="${x}" y="${y + (n.id === g.root ? 37 : 30)}" fill="#4e4a52" text-anchor="middle" style="font-weight:${n.id === g.root ? 700 : 500}">${esc(n.caption.slice(0, 26))}</text>`; }).join("");
   svg.innerHTML = lines + dots;
   $("#legend").innerHTML = [...new Set(g.nodes.map(n => n.label))].map(l => `<span><i style="background:${COLORS[l] || "#555"}"></i>${l}</span>`).join("");
 });

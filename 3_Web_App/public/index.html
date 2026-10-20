@@ -8,7 +8,7 @@
 </head>
 <body>
 <header>
-  <h1>Smart Customer Support · Neo4j</h1>
+  <h1>Smart Customer Support </h1>
   <nav id="nav">
     <button data-tab="dash" class="active">Dashboard</button>
     <button data-tab="tickets">Tickets</button>
@@ -24,8 +24,8 @@
     <div class="grid g2" style="margin-top:14px">
       <div class="card"><h3>Tickets by category</h3><div id="byCategory"></div></div>
       <div class="card"><h3>Open tickets by priority</h3><div id="byPriority"></div></div>
-      <div class="card"><h3>Department performance</h3><div id="deptTable"></div></div>
-      <div class="card"><h3>Repeat issues (same customer, same category)</h3><div id="repeatTable"></div></div>
+      <div class="card" style="grid-column: 1 / -1"><h3>Department performance</h3><div id="deptTable"></div></div>
+      <div class="card" style="grid-column: 1 / -1"><h3>Repeat issues (same customer, same category)</h3><div id="repeatTable"></div></div>
     </div>
   </section>
 
@@ -56,7 +56,7 @@
   <!-- GRAPH -->
   <section id="tab-graph" class="hide">
     <div class="card">
-      <div class="row"><label style="margin:0">Ticket ID</label><input id="graphId" type="number" value="4" style="width:100px"><button class="btn" id="graphBtn">Show graph</button></div>
+      <div class="row"><label style="margin:0">Ticket ID</label><input id="graphId" type="number" min="1" value="4" style="width:100px"><button class="btn" id="graphBtn">Show graph</button></div>
       <div class="legend" id="legend" style="margin-top:8px"></div>
       <svg id="graphSvg" viewBox="0 0 1000 620" style="width:100%;background:#fafbfe;border-radius:8px;margin-top:8px"></svg>
     </div>
