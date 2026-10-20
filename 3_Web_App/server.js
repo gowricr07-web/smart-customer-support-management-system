@@ -247,12 +247,38 @@ app.get("/api/articles/search", wrap(async (req, res) => {
      ORDER BY a.articleId`));
   // escape Lucene special characters
   const lucene = q.replace(/([+\-!(){}\[\]^"~*?:\\\/]|&&|\|\|)/g, "\\$1");
-  res.json(await run(
-    `CALL db.index.fulltext.queryNodes('article_text', $q) YIELD node, score
-     MATCH (node)-[:ORGANIZED_UNDER]->(c:Category)
-     RETURN node.articleId AS articleId, node.title AS title, node.content AS content,
-            c.name AS category, round(score * 1000) / 1000 AS score
-     ORDER BY score DESC`, { q: lucene }));
+  try {
+    return res.json(await run(
+      `CALL db.index.fulltext.queryNodes('article_text', $q) YIELD node, score
+       MATCH (node)-[:ORGANIZED_UNDER]->(c:Category)
+       RETURN node.articleId AS articleId, node.title AS title, node.content AS content,
+              c.name AS category, round(score * 1000) / 1000 AS score
+       ORDER BY score DESC`, { q: lucene }));
+  } catch (err) {
+    // Full-text index missing / still populating -> fall back to a plain substring search
+    console.warn("Full-text search failed, using CONTAINS fallback:", err.message);
+    return res.json(await run(
+      `MATCH (a:Article)-[:ORGANIZED_UNDER]->(c:Category)
+       WHERE toLower(a.title) CONTAINS toLower($q) OR toLower(a.content) CONTAINS toLower($q)
+       RETURN a.articleId AS articleId, a.title AS title, a.content AS content, c.name AS category, null AS score
+       ORDER BY a.articleId`, { q }));
+  }
+}));
+
+app.get("/api/articles/:id", wrap(async (req, res) => {
+  const id = Number(req.params.id);
+  const [article] = await run(
+    `MATCH (a:Article {articleId:$id})-[:ORGANIZED_UNDER]->(c:Category)
+     RETURN a.articleId AS articleId, a.title AS title, a.content AS content, c.name AS category,
+            toString(a.createdAt) AS createdAt`, { id });
+  if (!article) return res.status(404).json({ error: "Article not found" });
+  const tickets = await run(
+    `MATCH (t:Ticket)-[s:SUGGESTED]->(:Article {articleId:$id})
+     OPTIONAL MATCH (t)-[:HAS_FEEDBACK]->(f:Feedback)
+     RETURN t.ticketId AS ticketId, t.subject AS subject, t.status AS status,
+            s.confidence AS confidence, f.rating AS rating
+     ORDER BY t.ticketId`, { id });
+  res.json({ ...article, tickets });
 }));
 
 // ---------- graph subgraph for visualisation ----------
